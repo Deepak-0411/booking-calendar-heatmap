@@ -4,6 +4,7 @@ import { useCalendar } from "./hooks/useCalendar";
 import MonthNav from "./components/MonthNav";
 import CalendarGrid from "./components/CalendarGrid";
 import BookingPanel from "./components/BookingPanel";
+import StatsStrip from "./components/StatsStrip";
 
 export default function App() {
   const { bookings, loading, error } = useBookings();
@@ -26,15 +27,16 @@ export default function App() {
     );
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 overflow-x-auto">
+    <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl font-semibold text-slate-800 mb-6">
           Occupancy Calendar
         </h1>
 
-        <div className="flex gap-6 items-start h-[78.5vh]">
-          {/* Calendar — left side */}
-          <div className="flex-1 bg-white rounded-xl shadow-sm p-6 ">
+        <StatsStrip bookings={bookings} year={year} month={month} />
+
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 bg-white rounded-xl shadow-sm p-6">
             <MonthNav
               monthLabel={monthLabel}
               onPrev={prevMonth}
@@ -47,13 +49,10 @@ export default function App() {
               bookings={bookings}
               selection={selection}
               onSelectionChange={setSelection}
-              onNextMonth={nextMonth}
-              onPrevMonth={prevMonth}
             />
           </div>
 
-          {/* Panel — right side */}
-          <div className="w-80 max-h-full  overflow-y-scroll bg-white rounded-xl shadow-sm p-6 sticky top-8">
+          <div className="w-80 bg-white rounded-xl shadow-sm p-6 sticky top-8">
             <BookingPanel selection={selection} bookings={bookings} />
           </div>
         </div>

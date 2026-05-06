@@ -72,7 +72,7 @@ export default function BookingPanel({ selection, bookings }) {
             {/* Guest + status */}
             <div className="flex items-center justify-between mb-2">
               <span className="font-medium text-slate-800">
-                {booking.guest}
+                {booking.guestName}
               </span>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLES[booking.status] ?? "bg-slate-100 text-slate-600"}`}
@@ -85,7 +85,7 @@ export default function BookingPanel({ selection, bookings }) {
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-500">
               <span>Room</span>
               <span className="text-slate-700 font-medium">
-                #{booking.room} · {booking.roomType}
+                #{booking.roomNumber} · {booking.roomType}
               </span>
 
               <span>Check-in</span>

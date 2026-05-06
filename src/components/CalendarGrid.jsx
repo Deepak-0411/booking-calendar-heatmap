@@ -5,7 +5,7 @@ import {
   normalizeRange,
   isInRange,
 } from "../utils/calendar";
-import { buildOccupancyMap, toDateStr } from "../utils/occupancy";
+import { buildMonthData, toDateStr } from "../utils/occupancy";
 import DayCell from "./DayCell";
 
 export default function CalendarGrid({
@@ -21,8 +21,9 @@ export default function CalendarGrid({
   const [dragStart, setDragStart] = useState(null);
   const [dragEnd, setDragEnd] = useState(null);
 
-  const occupancyMap = useMemo(
-    () => buildOccupancyMap(bookings, year, month),
+  // Single pass for both maps
+  const { occupancyMap, roomsMap } = useMemo(
+    () => buildMonthData(bookings, year, month),
     [bookings, year, month],
   );
 
@@ -38,7 +39,6 @@ export default function CalendarGrid({
     setDragEnd(null);
   }, [dragStart, dragEnd, onSelectionChange]);
 
-  // Catches mouseup even if user releases outside the grid
   useEffect(() => {
     if (!isDragging) return;
     window.addEventListener("mouseup", finalizeDrag);
@@ -52,7 +52,8 @@ export default function CalendarGrid({
   }
 
   function handleMouseEnter(dateStr) {
-    if (isDragging) setDragEnd(dateStr);
+    if (!isDragging) return;
+    setDragEnd(dateStr);
   }
 
   // During drag show live range, after drag show finalized selection from App
@@ -81,6 +82,7 @@ export default function CalendarGrid({
             key={dayObj.dateStr}
             dayObj={dayObj}
             occupancy={occupancyMap[dayObj.dateStr] ?? 0}
+            rooms={roomsMap[dayObj.dateStr] ?? []}
             isSelected={
               displayRange
                 ? isInRange(
@@ -92,7 +94,7 @@ export default function CalendarGrid({
             }
             isToday={dayObj.dateStr === today}
             onMouseDown={handleMouseDown}
-            onMouseEnter={handleMouseEnter}
+            onMouseEnter={() => handleMouseEnter(dayObj.dateStr)}
           />
         ))}
       </div>
