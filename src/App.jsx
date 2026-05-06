@@ -35,7 +35,9 @@ export default function App() {
 
         <StatsStrip bookings={bookings} year={year} month={month} />
 
+        {/* flex items-start keeps both columns anchored to top */}
         <div className="flex gap-6 items-start">
+          {/* Calendar */}
           <div className="flex-1 bg-white rounded-xl shadow-sm p-6">
             <MonthNav
               monthLabel={monthLabel}
@@ -49,11 +51,18 @@ export default function App() {
               bookings={bookings}
               selection={selection}
               onSelectionChange={setSelection}
+              onNextMonth={nextMonth}
+              onPrevMonth={prevMonth}
             />
           </div>
 
-          <div className="w-80 bg-white rounded-xl shadow-sm p-6 sticky top-8">
-            <BookingPanel selection={selection} bookings={bookings} />
+          {/* Panel — fixed height, internal scroll only */}
+          <div className="w-80 h-[39.1rem] bg-white rounded-xl shadow-sm p-6 sticky top-8 overflow-y-auto">
+            <BookingPanel
+              selection={selection}
+              bookings={bookings}
+              onClearSelection={() => setSelection(null)}
+            />
           </div>
         </div>
       </div>
