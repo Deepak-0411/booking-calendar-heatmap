@@ -1,12 +1,26 @@
-import { useMemo } from "react";
-import { getCalendarDays, DAY_LABELS } from "../utils/calendar";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import {
+  getCalendarDays,
+  DAY_LABELS,
+  normalizeRange,
+  isInRange,
+} from "../utils/calendar";
 import { buildOccupancyMap, toDateStr } from "../utils/occupancy";
 import DayCell from "./DayCell";
 
-export default function CalendarGrid({ year, month, bookings }) {
+export default function CalendarGrid({
+  year,
+  month,
+  bookings,
+  selection,
+  onSelectionChange,
+}) {
   const today = toDateStr(new Date());
 
-  // Recomputes only when bookings or month changes — not on every render
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  const [dragEnd, setDragEnd] = useState(null);
+
   const occupancyMap = useMemo(
     () => buildOccupancyMap(bookings, year, month),
     [bookings, year, month],
@@ -14,9 +28,41 @@ export default function CalendarGrid({ year, month, bookings }) {
 
   const days = useMemo(() => getCalendarDays(year, month), [year, month]);
 
+  const finalizeDrag = useCallback(() => {
+    if (dragStart) {
+      const range = normalizeRange(dragStart, dragEnd ?? dragStart);
+      onSelectionChange(range);
+    }
+    setIsDragging(false);
+    setDragStart(null);
+    setDragEnd(null);
+  }, [dragStart, dragEnd, onSelectionChange]);
+
+  // Catches mouseup even if user releases outside the grid
+  useEffect(() => {
+    if (!isDragging) return;
+    window.addEventListener("mouseup", finalizeDrag);
+    return () => window.removeEventListener("mouseup", finalizeDrag);
+  }, [isDragging, finalizeDrag]);
+
+  function handleMouseDown(dateStr) {
+    setIsDragging(true);
+    setDragStart(dateStr);
+    setDragEnd(dateStr);
+  }
+
+  function handleMouseEnter(dateStr) {
+    if (isDragging) setDragEnd(dateStr);
+  }
+
+  // During drag show live range, after drag show finalized selection from App
+  const displayRange =
+    isDragging && dragStart
+      ? normalizeRange(dragStart, dragEnd ?? dragStart)
+      : selection;
+
   return (
-    <div>
-      {/* Day labels header */}
+    <div className="select-none">
       <div className="grid grid-cols-7 mb-1">
         {DAY_LABELS.map((label) => (
           <div
@@ -35,8 +81,18 @@ export default function CalendarGrid({ year, month, bookings }) {
             key={dayObj.dateStr}
             dayObj={dayObj}
             occupancy={occupancyMap[dayObj.dateStr] ?? 0}
-            isSelected={false}
+            isSelected={
+              displayRange
+                ? isInRange(
+                    dayObj.dateStr,
+                    displayRange.start,
+                    displayRange.end,
+                  )
+                : false
+            }
             isToday={dayObj.dateStr === today}
+            onMouseDown={handleMouseDown}
+            onMouseEnter={handleMouseEnter}
           />
         ))}
       </div>

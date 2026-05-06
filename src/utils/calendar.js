@@ -37,6 +37,14 @@ export function getCalendarDays(year, month) {
   return days;
 }
 
+export function normalizeRange(a, b) {
+  return a <= b ? { start: a, end: b } : { start: b, end: a };
+}
+
+export function isInRange(dateStr, start, end) {
+  return dateStr >= start && dateStr <= end;
+}
+
 // Returns bg color class based on occupancy out of 10 rooms
 export function getHeatmapColor(occupancy) {
   if (occupancy === 0) return "bg-slate-50  text-slate-400";

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useBookings } from "./hooks/useBookings";
 import { useCalendar } from "./hooks/useCalendar";
 import MonthNav from "./components/MonthNav";
@@ -7,6 +8,7 @@ export default function App() {
   const { bookings, loading, error } = useBookings();
   const { year, month, prevMonth, nextMonth, goToToday, monthLabel } =
     useCalendar();
+  const [selection, setSelection] = useState(null);
 
   if (loading)
     return (
@@ -34,7 +36,13 @@ export default function App() {
           onNext={nextMonth}
           onToday={goToToday}
         />
-        <CalendarGrid year={year} month={month} bookings={bookings} />
+        <CalendarGrid
+          year={year}
+          month={month}
+          bookings={bookings}
+          selection={selection}
+          onSelectionChange={setSelection}
+        />
       </div>
     </div>
   );
