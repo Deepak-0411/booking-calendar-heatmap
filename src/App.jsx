@@ -7,7 +7,7 @@ import BookingPanel from "./components/BookingPanel";
 import StatsStrip from "./components/StatsStrip";
 
 export default function App() {
-  const { bookings, loading, error } = useBookings();
+  const { bookings, loading, error, retry } = useBookings();
   const { year, month, prevMonth, nextMonth, goToToday, monthLabel } =
     useCalendar();
   const [selection, setSelection] = useState(null);
@@ -21,8 +21,14 @@ export default function App() {
 
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        Failed to load: {error}
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+        <p className="text-red-500">{error}</p>
+        <button
+          onClick={retry}
+          className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm hover:bg-slate-700"
+        >
+          Try again
+        </button>
       </div>
     );
 
